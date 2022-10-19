@@ -25,6 +25,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         //<editor-fold desc="VIEWS" defaultstate="collapsed">
+        val tvTemperatura = findViewById<TextView>(R.id.textViewTemperatura)
+        val tvCidade = findViewById<TextView>(R.id.textViewCidade)
+        val tvTempMaxima = findViewById<TextView>(R.id.textViewMaxima)
+        val tvTempMinima = findViewById<TextView>(R.id.textViewMinima)
+        val tvTempoCelula = findViewById<TextView>(R.id.textViewTempoCelula)
+        val tvNascerDoSol = findViewById<TextView>(R.id.textViewNascerDoSol)
+        val tvPorDoSol = findViewById<TextView>(R.id.textViewPorDoSol)
 
         //</editor-fold>
 
@@ -41,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         //</editor-fold>
 
         var mapper = jacksonObjectMapper()
-        var wheather: Weather?
+        var weather: Weather?
 
         val url = "https://api.hgbrasil.com/weather"
         val queue = Volley.newRequestQueue(this)
@@ -49,7 +56,19 @@ class MainActivity : AppCompatActivity() {
         val stringRequest = StringRequest(Request.Method.GET, url,
             { response ->
                 Log.d("RESULT: ", response)
+                val nodeResult = mapper.readTree(response)
+                weather = mapper.readValue(nodeResult.get("results").toString(),
+                    Weather::class.java)
 
+                tvTemperatura.text = weather?.temp.toString()
+                tvCidade.text = weather?.city
+                tvTempMaxima.text = weather?.forecast?.get(0)?.max.toString()
+                tvTempMinima.text = weather?.forecast?.get(0)?.min.toString()
+                tvNascerDoSol.text = weather?.sunrise
+                tvPorDoSol.text = weather?.sunrise
+                tvTempoCelula.text = weather?.description
+
+                Log.i("JACKSON:", weather.toString())
             },
             { error -> error.localizedMessage?.let { Log.d("ERROR: ", it) } })
 
